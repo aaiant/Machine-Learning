@@ -63,10 +63,6 @@ The objective is to build a supervised machine learning model that predicts the 
 black-friday-sales-prediction/
 │
 ├── Black_Friday.ipynb
-├── train.csv
-├── test.csv
-├── submission.csv
-├── best_rf_model.pkl   # (optional - large file, not recommended for GitHub)
 └── README.md
 ```
 
