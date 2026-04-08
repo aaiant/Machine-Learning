@@ -1,6 +1,6 @@
-# 🫀 Heart Disease Classification
+# 🛍️ Black Friday Sales Prediction
 
-> A binary classification project to predict the presence of heart disease from clinical indicators, using Logistic Regression, KNN, and Random Forest — with a final tuned model achieving **84% accuracy** and **0.91 AUC**.
+> A regression project to predict individual purchase amounts during Black Friday, using over 550,000 retail transactions and a tuned **Random Forest Regressor** — achieving an **R² of 0.75** on the test set.
 
 ---
 
@@ -14,60 +14,59 @@
 * [🔍 Key Findings](#-key-findings)
 * [🛠️ Technologies Used](#-technologies-used)
 * [▶️ How to Run](#️-how-to-run)
+* [📤 Output Files](#-output-files)
 * [📌 Conclusions](#-conclusions)
 
 ---
 
 ## 🎯 Problem Definition
 
-Cardiovascular diseases are among the leading causes of mortality worldwide, making early detection and risk assessment a critical challenge in modern healthcare.
+This project is based on a real-world retail dataset capturing Black Friday sales transactions.
 
-The goal of this project is to build a supervised machine learning model capable of predicting whether a patient has heart disease based on 13 clinical indicators.
+The objective is to build a supervised machine learning model that predicts the **purchase amount (USD)** for each transaction using demographic and product-related features.
 
-* **Task type:** Binary Classification
-* **Target variable:** `target` (1 = Heart Disease, 0 = No Heart Disease)
+* **Task type:** Regression
+* **Target variable:** `Purchase`
+* **Success criterion:** R² ≥ 0.75
 
 ---
 
 ## 📊 Dataset
 
-The dataset originates from the well-known **Cleveland Heart Disease Database (1988)** and combines data from four medical institutions: Cleveland, Hungary, Switzerland, and Long Beach VA.
-
-| Property       | Value              |
-| -------------- | ------------------ |
-| Raw samples    | 1,025 rows         |
-| Features       | 13 clinical inputs |
-| Target classes | 2 (binary)         |
-| Missing values | None               |
+| Split | Rows    | Columns |
+| ----- | ------- | ------- |
+| Train | 550,068 | 12      |
+| Test  | 233,599 | 11      |
 
 ### 🔑 Features
 
-| Feature    | Description                                    |
-| ---------- | ---------------------------------------------- |
-| `age`      | Age of the patient                             |
-| `sex`      | Sex (1 = male, 0 = female)                     |
-| `cp`       | Chest pain type (0–3)                          |
-| `trestbps` | Resting blood pressure (mm Hg)                 |
-| `chol`     | Serum cholesterol (mg/dl)                      |
-| `fbs`      | Fasting blood sugar > 120 mg/dl (1 = true)     |
-| `restecg`  | Resting ECG results (0–2)                      |
-| `thalach`  | Maximum heart rate achieved                    |
-| `exang`    | Exercise-induced angina (1 = yes)              |
-| `oldpeak`  | ST depression induced by exercise              |
-| `slope`    | Slope of peak exercise ST segment              |
-| `ca`       | Number of major vessels colored by fluoroscopy |
-| `thal`     | Thalassemia type                               |
-
-> **Note:** The raw dataset contained 723 duplicate rows (≈70.5%). After deduplication, 302 unique records remained with a near-balanced class distribution (164 positive, 138 negative).
+| Feature                      | Type        | Description            |
+| ---------------------------- | ----------- | ---------------------- |
+| `User_ID`                    | Identifier  | Unique user ID         |
+| `Product_ID`                 | Identifier  | Unique product ID      |
+| `Gender`                     | Categorical | M / F                  |
+| `Age`                        | Categorical | Age group              |
+| `Occupation`                 | Numerical   | Occupation code        |
+| `City_Category`              | Categorical | A / B / C              |
+| `Stay_In_Current_City_Years` | Ordinal     | Years in city          |
+| `Marital_Status`             | Binary      | 0 / 1                  |
+| `Product_Category_1`         | Numerical   | Main category          |
+| `Product_Category_2`         | Numerical   | Secondary category     |
+| `Product_Category_3`         | Numerical   | Dropped (>50% missing) |
+| `Purchase` *(target)*        | Numerical   | Amount spent           |
 
 ---
 
 ## 📁 Project Structure
 
-```
-heart-disease-classification/
+```id="zjv8s8"
+black-friday-sales-prediction/
 │
-├── Heart-Disease-Classification.ipynb   # Main analysis notebook
+├── Black_Friday.ipynb
+├── train.csv
+├── test.csv
+├── submission.csv
+├── best_rf_model.pkl   # (optional - large file, not recommended for GitHub)
 └── README.md
 ```
 
@@ -75,116 +74,118 @@ heart-disease-classification/
 
 ## 🔬 Methodology
 
-### 1. Data Loading & Cleaning
+### 1. Data Cleaning
 
-* Loaded dataset (1,025 rows, 14 columns)
-* Removed 723 duplicate rows
-* Verified no missing values and correct data types
+* Removed `User_ID`, `Product_ID`
+* Dropped `Product_Category_3`
+* Cleaned `Stay_In_Current_City_Years`
+* Removed duplicates
 
-### 2. Exploratory Data Analysis (EDA)
+### 2. Exploratory Data Analysis
 
-* Class distribution analysis
-* Gender-based comparisons
-* Age vs. heart rate visualization
-* Chest pain type analysis
-* Correlation heatmap
+* Gender distribution (~75% male)
+* Purchase trends by age and occupation
+* Outlier analysis
+* Product category impact
 
-### 3. Baseline Models
+### 3. Preprocessing
 
-* Logistic Regression
-* K-Nearest Neighbors
-* Random Forest
+* Median imputation (`Product_Category_2`)
+* Label encoding (`Age`)
+* One-hot encoding (`Gender`, `City_Category`)
+* Log transform on `Purchase`
+* Feature scaling
 
-👉 Random Forest performed best initially
+### 4. Modeling
 
-### 4. Hyperparameter Tuning
+| Model             | Test R²  |
+| ----------------- | -------- |
+| Linear Regression | 0.19     |
+| Decision Tree     | 0.74     |
+| Random Forest     | **0.75** |
 
-* **KNN:** Optimal at `k = 11`
-* **Logistic Regression:** ~73.7% accuracy
-* **Random Forest:** 310 estimators, max depth = 5
+### 5. Tuning
 
-### 5. Model Evaluation
+* GridSearchCV for Decision Tree & Random Forest
+* Best RF: ~310 trees, depth = 5
 
-* ROC Curve & AUC
-* Confusion Matrix
-* Precision / Recall / F1 Score
-* 5-Fold Cross-Validation
+### 6. Prediction
 
-### 6. Feature Importance
-
-Top predictors:
-
-1. `cp` — Chest pain type
-2. `thalach` — Maximum heart rate
-3. `slope` — ST segment slope
-4. `sex` — Gender
+* Applied best model to test set
+* Inverse log transform (`np.exp`)
+* Saved results → `submission.csv`
 
 ---
 
 ## 📈 Results
 
-| Metric             | Score |
-| ------------------ | ----- |
-| Accuracy           | 84.0% |
-| Precision          | 84.6% |
-| Recall             | 84.3% |
-| F1 Score           | 84.1% |
-| AUC (ROC)          | 0.91  |
-| Cross-val Accuracy | 84.1% |
+| Metric | Value         |
+| ------ | ------------- |
+| R²     | 0.75          |
+| Model  | Random Forest |
 
-✔️ Correct predictions: **51 / 61**
-✔️ Misclassifications: **10**
+✔️ Meets target performance
+✔️ Stable across cross-validation
 
 ---
 
 ## 🔍 Key Findings
 
-* **Gender:** Females showed a higher disease rate (**75%**) vs. males (**45%**)
-* **Chest pain type:** Strong predictor of disease presence
-* **ST slope:** Upsloping segments strongly correlated with disease
-* **Age & heart rate:** Inverse relationship observed
+* **Gender:** Males dominate transactions (~75%)
+* **Age:** Behavior relatively stable across groups
+* **Product categories:** Strongest predictor of purchase value
+* **Outliers:** High-value purchases are valid, not noise
+* **Log transform:** Significantly improved performance
+* **Linear models:** Fail to capture non-linear behavior
 
 ---
 
 ## 🛠️ Technologies Used
 
-* Python 3 (Jupyter Notebook)
+* Python 3
 * pandas, numpy
 * matplotlib, seaborn
 * scikit-learn
 
-  * LogisticRegression
-  * KNeighborsClassifier
-  * RandomForestClassifier
-  * RandomizedSearchCV, GridSearchCV
+  * RandomForestRegressor
+  * DecisionTreeRegressor
+  * GridSearchCV
+* joblib
 
 ---
 
 ## ▶️ How to Run
 
-```bash
-git clone https://github.com/your-username/heart-disease-classification.git
-cd heart-disease-classification
-pip install pandas numpy matplotlib seaborn scikit-learn jupyter
-jupyter notebook Heart-Disease-Classification.ipynb
+```bash id="m7k8yy"
+git clone https://github.com/your-username/black-friday-sales-prediction.git
+cd black-friday-sales-prediction
+pip install pandas numpy matplotlib seaborn scikit-learn joblib jupyter
+jupyter notebook Black_Friday.ipynb
 ```
+
+---
+
+## 📤 Output Files
+
+| File                | Description                                   |
+| ------------------- | --------------------------------------------- |
+| `submission.csv`    | Final predictions                             |
+| `best_rf_model.pkl` | Saved model (excluded from repo if too large) |
 
 ---
 
 ## 📌 Conclusions
 
-This project successfully developed a binary classification pipeline for predicting heart disease using clinical data.
+This project demonstrates how tree-based models effectively capture **non-linear purchase behavior** in large-scale retail datasets.
 
-The tuned **Random Forest model** achieved strong and consistent performance, with:
+The tuned **Random Forest model** achieved:
 
-* **84% accuracy**
-* **0.91 AUC**
-
-These results demonstrate reliable predictive capability and generalization.
+* **R² = 0.75**
+* strong generalization across folds
 
 ### 🚀 Future Improvements
 
-* Feature engineering & selection
+* Feature engineering (user/product aggregation)
+* Gradient boosting (XGBoost, LightGBM)
+* Target encoding
 * Ensemble stacking
-* XGBoost / LightGBM models
-* Additional datasets for better generalization
