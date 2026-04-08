@@ -1,0 +1,14 @@
+# Black Friday project
+black_friday_project/env/
+black_friday_project/.ipynb_checkpoints/
+black_friday_project/test.csv
+black_friday_project/train.csv
+black_friday_project/*.pkl
+black_friday_project/submission.csv
+
+# Heart disease project
+heart_disease_project/env/
+heart_disease_project/.ipynb_checkpoints/
+heart_disease_project/heart.csv
+
+bulldozer_price_prediction_project/
